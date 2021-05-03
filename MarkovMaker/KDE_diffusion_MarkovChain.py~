@@ -1,0 +1,51 @@
+from kde_diffusion import kde1d, kde2d
+import numpy as np
+import matplotlib.pyplot as plt
+
+X = np.random.normal(loc=0.0, scale=10.0, size=1000000)
+Y = np.random.normal(loc=np.sinh(X/np.pi), scale=1.0, size=1000000)
+Z = np.random.uniform(low=Y-1, high=Y+1, size=1000000)+np.random.normal(loc=0.0, scale=1.0, size=1000000)
+
+
+(density_x, grid_x, bw_x) = kde1d(X, n=512, limits=10)
+(density_y, grid_y, bw_y) = kde1d(Y, n=512, limits=10)
+(density_z, grid_z, bw_z) = kde1d(Z, n=512, limits=10)
+(density_xy, grid_xy, bw_xy) = kde2d(X, Y, n=512, limits=10)
+(density_yz, grid_yz, bw_yz) = kde2d(Y, Z, n=512, limits=10)
+
+"""
+plt.plot(grid_x, density_x, color='blue')
+plt.show()
+plt.plot(grid_y, density_y, color='black')
+plt.show()
+plt.plot(grid_z, density_z, color='red')
+"""
+
+density_x[density_x < 0] = 0
+density_y[density_y < 0] = 0
+density_z[density_z < 0] = 0
+density_x_y = density_xy/np.sum(density_xy, axis=0) #Bayesian update
+density_x_y[density_x_y < 0] = 0
+density_y_z = density_yz/np.sum(density_yz, axis=0)
+density_y_z[density_y_z < 0] = 0
+
+pdf_x_y = density_x_y/np.sum(density_x_y, axis=0)
+pdf_y_z = density_y_z/np.sum(density_y_z, axis=0)
+
+means_x_y = [np.sum(grid_x*pdf_x_y[:][i], axis=0) for i in range(len(grid_x))]
+means_y_z = [np.sum(grid_y*pdf_y_z[:][i], axis=0) for i in range(len(grid_y))]
+
+plt.imshow(density_xy)
+plt.show()
+plt.imshow(density_x_y)
+plt.show()
+plt.imshow(density_yz)
+plt.show()
+plt.imshow(density_y_z)
+plt.show()
+
+plt.plot(grid_x, means_x_y)
+plt.show()
+plt.plot(grid_y, means_y_z)
+plt.show()
+

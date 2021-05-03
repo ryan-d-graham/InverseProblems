@@ -1,0 +1,20 @@
+import pywt
+import soundfile as sf
+from os import system
+import numpy as np #Numerical Python stuffs
+from scipy import ndimage, misc
+import pandas as pd #Pandas Data stuffs
+from pandas_ods_reader import read_ods #Convert Libre Office Spreadsheet data to Pandas DataFrame object
+import matplotlib.pyplot as plt
+
+
+#filename = input("Enter filename (file_name.wav): ")
+filename = 'test.wav'
+amps, meta = sf.read(filename)
+mean = 0.5
+scale = 0.01
+N = 100
+kern = np.exp(-np.linspace(0-mean,1-mean,N)*np.linspace(0-mean,1-mean,N)/scale)
+plt.plot(np.linspace(0,1,N),kern)
+
+plt.show()
