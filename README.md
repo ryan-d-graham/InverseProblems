@@ -1,2 +1,2 @@
 # InverseProblems
-Bayesian Inversion, Probability, Applied Mathematics, Statistics
+Bayesian and non-Bayesian Inverse Problems
