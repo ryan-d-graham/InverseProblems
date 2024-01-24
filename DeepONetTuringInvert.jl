@@ -22,7 +22,7 @@ Sensor = randn((SensorDim, NumSensors))
 Model(FuncTrain, Sensor)
 
 
-# generate data to train DeepONet using Gaussian Processes, Integrals and Interpolations
+# generate data to train DeepONet using random Fourier Basis functions and an ODE solver
 θDim = 10 # number of terms in Fourier Basis expansion
 σp = 1.0 # prior standard deviation of parameters
 θGT = σp * randn(θDim) # sample some ground truth parameters
