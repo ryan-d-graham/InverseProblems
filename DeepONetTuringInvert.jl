@@ -13,7 +13,7 @@ SensorDim = 1 # number of dimensions in input domain of neural operator
 Model = DeepONet((FuncDim, 64, 72), (SensorDim, 64, 72), σ, tanh) # Learn nonlinear Banach space map between function spaces
 
 NumFuncObs = 1024 # Number of randomly-sampled input functions to use for training
-NumSensors = 32 # Number of discrete points at which to evaluate input functions
+NumSensors = 32 # Number of discrete points at which to evaluate output functions
 
 # create prototype inputs to neural operator model
 FuncTrain = randn((FuncDim, NumFuncObs))
