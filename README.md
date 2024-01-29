@@ -9,7 +9,8 @@ using Julia's SciML ecosystem.
 In this example a nonlinear pendulum system is formulated and solved using DifferentialEquations.jl. 
 
 The equations governing the toy example are:
-x'(t) = v(t)
+x'(t) = v(t);
+
 x''(t) = v'(t) = -gsin(x(t)) - cv(t) + f(t, p)
 
 In this case, the numbers g and c are fixed and not inferred. Instead, the parameters p of the function f(t, p)
