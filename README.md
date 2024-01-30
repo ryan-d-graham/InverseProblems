@@ -59,6 +59,6 @@ Example with markov_lag = 1 and [X, Y] --> [W, Z]: X_t --> W_t+1; Y_t --> Z_t+1
 
 CommonPaths(nodeName, chainList, source=True)
 This function generates either a multi-fork or multi-collider of the single variable in "nodeName" using the variables in chainList. 
-Example: nodeName = ["X"] and chainList = ["Y", "Z"] with source=True produces the DAG: X_n --> Y_n, Z_n, otherwise it produces 
-the DAG: Y_n, Z_n --> X_n
+Example: nodeName = ["X"] and chainList = ["Y", "Z"] with source=True produces the DAG: X_t --> Y_t, Z_t, otherwise it produces 
+the DAG: Y_t, Z_t --> X_t
 
