@@ -68,3 +68,9 @@ This function generates either a multi-fork or multi-collider of the single vari
 Example: nodeName = ["X"] and chainList = ["Y", "Z"] with source=True produces the DAG: X_t --> Y_t, Z_t, otherwise it produces 
 the DAG: Y_t, Z_t --> X_t
 
+KernelIntegrals includes scripts that use Integrals.jl to integrate an arbitrary function (spline, NN, or analytical) against a Kernel such 
+as a Green's function. The examples showcase a setup for integrating the 2D and 3D Poisson Equation in R2 and R3 (free space solution). 
+Note that Integrals.jl has the ability, using a special coordinate transformation, to integrate from [-Inf, -Inf...] to [Inf, Inf...] etc. 
+These functions can be used to generate data to train DeepONet to surrogatize the IntegralProblem, which is slow on its own. By training 
+DeepONet to learn the map from the f(x, y) and f(x, y, z) to the u(x, y) and u(x, y, z) respectively, you can accelerate solves greatly 
+by needing only one forward pass of DeepONet instead of having to call an integral solver for each point in the spatial domain.
