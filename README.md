@@ -39,9 +39,26 @@ MarkovGrid.py:
 
 This script sets up a framework to use pgmpy (probabilistic graphical models in python) for unrolling Dynamic Bayesian Networks with arbitrary markov lag orders. 
 
-Create a set of variables with the "Names" function. Pass this list to any of the following functions:
-MarkovChain(chainList, markovOrder=1) creates a Markov chain of arbitrary order (defaults to 1 with 3 unrolled time-steps per variable). This function creates
-an edge from the first time slice of each variable to the following time slices of the same variable and to the appropriate slices if markov lag is higher than 1. 
-For example, markov_lag = 1 with variables X and Y produces the DAG: X1 --> X2 --> X3; Y1 --> Y2 --> Y3
-Using a markov_lag of 2 for the same variables produces the DAG: X1 --> X2 --> X3 --> X4, X1 --> X3, X2 --> X4; Y1 --> Y2 --> Y3 --> Y4, Y1 --> Y3, Y2 --> Y4
+Create a set of variables with the "Names(chainName="Node", chainLength=3, subScript="")" function. Pass this list to any of the following functions:
+
+MarkovChain(chainList, markovOrder=1) 
+This function creates a Markov chain of arbitrary order (defaults to 1). 
+Example: markov_lag = 1 with variables X and Y produces the DAG: X_t --> X_t+1; Y_t --> Y_t+1
+Using a markov_lag = 2 for the same variables produces the DAG: X_t --> X_t+2; Y_t --> Y_t+2
+Note that if you wish to include more than one markov_lag, you can bunch the edges from separate calls to 
+MarkovChain function using a different markovOrder each time. 
 Etc...
+
+InterProcess(causeChainList, effectChainList, markovLag=0)
+This function creates an edge between variables in the chain in the same way as MarkovChain does for each variable's other time-slices. 
+Using [X, Y] in the causeChainList and [W, Z] in the effect chain list with markov_lag = 0 produces the DAG: X --> W; Y --> Z
+If you wish to create a fully-connected DAG between [X, Y] and [W, Z], simply use the lists [X, Y, X, Y] and [W, Z, Z, W] as 
+the cause and effect variables are treated elementwise in the list and not assuming a fully-connected DAG. 
+Increasing the markov_lag will work analogously to the previous function. 
+Example with markov_lag = 1 and [X, Y] --> [W, Z]: X_t --> W_t+1; Y_t --> Z_t+1
+
+CommonPaths(nodeName, chainList, source=True)
+This function generates either a multi-fork or multi-collider of the single variable in "nodeName" using the variables in chainList. 
+Example: nodeName = ["X"] and chainList = ["Y", "Z"] with source=True produces the DAG: X_n --> Y_n, Z_n, otherwise it produces 
+the DAG: Y_n, Z_n --> X_n
+
