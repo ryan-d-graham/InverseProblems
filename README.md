@@ -5,12 +5,17 @@ DeepONetTuringInvert.jl:
 
 This script demonstrates a use case of DeepONet, the most general neural operator architecture invented in 2019 in this paper https://arxiv.org/abs/1910.03193
 using Julia's SciML ecosystem. 
-In this example a nonlinear pendulum system is formulated and solved using DifferentialEquations.jl. 
+In this example a nonlinear pendulum system is formulated and solved using DifferentialEquations.jl. 10,000 solution trajectories with the initial conditions 
+and associated external forcing functions are recorded as data to train a surrogate model, DeepONet. The model learns the operator mapping the ICs and input
+function to the solution trajectory of the ODE system.
+
 The equations governing the toy example are:
 x'(t) = v(t); x''(t) = v'(t) = -gsin(x(t)) - cv(t) + f(t, p)
 
 The numbers g and c are fixed and not inferred. Instead, the parameters p of the function f(t, p)
-are inferred such that what is being done is function-space Bayesian inference. 
+are inferred such that what is being done is function-space Bayesian inference. Note that any combination of solution components may be used in the inference 
+procudure. Inference uncertainty can be compared when using both position and velocity, position or velocity only. It is interesting to explore how the posterior
+over functions is affected by eliminating or including, in this example, the angle or frequency of the pendulum wrt vertical. 
 
 DeepONetInverseProb.jl:
 
