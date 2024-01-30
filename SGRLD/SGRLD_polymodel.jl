@@ -5,7 +5,7 @@ using DiffEqFlux
 
 # Experiment with gradients
 function model(x, θ)
-    n * length(θ)
+    n = length(θ)
     θ * FourierBasis(n)(x)'
 end
 
