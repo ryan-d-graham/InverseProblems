@@ -30,7 +30,18 @@ SGRLD_polymodel.jl:
 
 This script uses SGRLD to learn the parameters of a truncated Fourier Series for simple polynomial regression. 
 
-SGRLD_dist.jl
+SGRLD_dist.jl:
 
 This script showcases the SGRLD's Monge Riemannian metric tensor's ability to infer the full (multi-modal) posterior of an arbitrary energy function. 
 Possible applications include learning the partition function of thermodynamic systems whose energy function is specified as the log likelihood. 
+
+MarkovGrid.py:
+
+This script sets up a framework to use pgmpy (probabilistic graphical models in python) for unrolling Dynamic Bayesian Networks with arbitrary markov lag orders. 
+
+Create a set of variables with the "Names" function. Pass this list to any of the following functions:
+MarkovChain(chainList, markovOrder=1) creates a Markov chain of arbitrary order (defaults to 1 with 3 unrolled time-steps per variable). This function creates
+an edge from the first time slice of each variable to the following time slices of the same variable and to the appropriate slices if markov lag is higher than 1. 
+For example, markov_lag = 1 with variables X and Y produces the DAG: X1 --> X2 --> X3; Y1 --> Y2 --> Y3
+Using a markov_lag of 2 for the same variables produces the DAG: X1 --> X2 --> X3 --> X4, X1 --> X3, X2 --> X4; Y1 --> Y2 --> Y3 --> Y4, Y1 --> Y3, Y2 --> Y4
+Etc...
