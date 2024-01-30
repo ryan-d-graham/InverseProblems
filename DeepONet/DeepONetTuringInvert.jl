@@ -53,8 +53,8 @@ tspan = (t₀, t₁)
 prob = ODEProblem(Pendulum!, u₀, tspan, θGT)
 #solve problem
 sol = solve(prob, Tsit5(), saveat = collect(SensorGrid))
-t⋆ = (t₁ - t₀) * rand(1)[1] + t₀ #sample a random point in the time domain
-sol(rand(1)[1], idxs=1) # more sanity checks
+t̂ = (t₁ - t₀) * rand(1)[1] + t₀ #sample a random point in the time domain
+sol(t̂, idxs=1) # more sanity checks
 plot(SensorGrid, sol(SensorGrid, idxs=1), title="GT Solution") # visualize angular position without angular velocity (u₁ and not u₂)
 
 # sampling ICs
