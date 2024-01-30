@@ -15,7 +15,7 @@ are inferred such that what is being done is function-space Bayesian inference.
 DeepONetInverseProb.jl:
 
 This script showcases a non-Bayesian but instead a direct inverse problem approach using DeepONet. Instead of surrogatizing the forward problem and accelerating
-Bayesian inference, the approach learns the inverse of the map from external forcing to the solution and provides the underlying external forcing directly
+Bayesian inference, the approach surrogatizes the inverse of the map from external forcing to the solution and provides the underlying external forcing directly
 from the solution data as input. This approach loses the ability to quantify uncertainty but provides a way to do online inference and dynamical control. 
 For use in dynamical control, simply provide a solution trajectory you would like the system to exhibit which is "within reach" and it will output the necessary 
 external forcing required to achieve the desired trajectory.
