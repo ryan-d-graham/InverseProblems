@@ -8,14 +8,14 @@ using Turing, StatsPlots
 # DeepONet approximates a Banach space map using a discretized input function and sensor locations at which to evaluate the operator
 # Architecture: 
 # Model{f(x)}(ξ) = Branch{f(x)}ᵀ Trunk{ξ}, where f(x) is the discretized input function and ξ are the coordinates at which to evaluate operator
-FuncDim = 32+2 # number of discrete points to approximate input function
-SensorDim = 1 # number of dimensions in input domain of neural operator
+FuncDim = 2+32 # ICs + number of discrete points to approximate input function
+SensorDim = 1 # number of dimensions in input domain of neural operator's output function
 Model = DeepONet((FuncDim, 32, 72), (SensorDim, 32, 72), σ, tanh) # Learn nonlinear Banach space map between function spaces
 
 NumFuncObs = 10000 # Number of randomly-sampled input functions to use for training
 NumSensors = 32 # Number of discrete points at which to evaluate output functions
 
-# create prototype inputs to neural operator model
+# create prototype inputs to neural operator model (this forces precompilation and speeds up later evals)
 FuncTrain = randn((FuncDim, NumFuncObs))
 Sensor = randn((SensorDim, NumSensors))
 # evaluate model at prototype inputs
@@ -46,19 +46,27 @@ function Pendulum!(du, u, p, t)
     du[2] = -9.8 * sin(u[1]) - 0.5 * u[2] + Force(t, p)
 end
 # initial conditions and external torque function parameters
-u₀ = [0.0, 0.0]
+x₀ = 1.0 * π * rand(1)[1] - 0.5 * π # uniform sample a random initial angle wrt vertical on [-π/2, π/2]
+v₀ = 1.0 * rand(1)[1] # uniform sample a random initial angular frequency on [-1, 1] rad/s
+u₀ = [x₀, v₀]
 tspan = (t₀, t₁)
 prob = ODEProblem(Pendulum!, u₀, tspan, θGT)
 #solve problem
 sol = solve(prob, Tsit5(), saveat = collect(SensorGrid))
+t⋆ = (t₁ - t₀) * rand(1)[1] + t₀ #sample a random point in the time domain
 sol(rand(1)[1], idxs=1) # more sanity checks
 plot(SensorGrid, sol(SensorGrid, idxs=1), title="GT Solution") # visualize angular position without angular velocity (u₁ and not u₂)
 
+# sampling ICs
+x_low = -π / 2.0
+x_high = π / 2.0
+v_low = -1.0
+v_high = 1.0
 # Generate data for DeepONet using u(t) = ODESolve{f(u, t, p)}, t ∈ [x₀, x]
 for ϕ ∈ 1:NumFuncObs # iterate over number of functions to sample
     θ = σp * randn(θDim) # sample a random function 
-    x₀ = 1.0 * π * rand(1)[1] - 0.5 * π # sample a random initial angle from -π/2 to π/2
-    v₀ = 1.0 * rand(1)[1] - 0.5 # sample a random initial angular frequency from -1/2 to 1/2 rad/s
+    x₀ = (x_high - x_low) * rand(1)[1] + x_high # sample a random initial angle from x_low to x_high radians
+    v₀ = (v_high - v_low) * rand(1)[1] + v_high # sample a random initial angular frequency from v_low to v_high rad/s
     FunctionObs[:, ϕ] = vcat(x₀, v₀, [Force(t, θ) for t ∈ FunctionGrid]) # put the ICs followed by the random function in the row of FunctionObs
     prob = remake(prob, u0 = [x₀, v₀], p = θ) # remake ode problem with p = θ and u0 = u₀
     sol = solve(prob, Tsit5()) # integrate
@@ -74,7 +82,7 @@ Loss(fs, sols, sensor) = Flux.Losses.mse(Model(fs, sensor), sols)
 # training setup (manually decrease learning rate as training progresses or stalls below desired loss)
 # I like to see a minimal increase in loss once new random data are generated and model has been trained on previous dataset
 # A small increase in loss when new data are generated suggests model is generalizing well to new, unseen data
-LearningRate = 1e-4
+LearningRate = 1e-3
 Opt = Adam(LearningRate)
 Pars = Flux.params(Model)
 Flux.@epochs 1000 Flux.train!(Loss, Pars, [(FunctionObs, SolutionObs, Sensor)], Opt)
@@ -90,7 +98,7 @@ NewSensor = reshape(collect(SensorGridRefined), (1, length(SensorGridRefined)))
 #p3 = plot(SensorGridRefined, Model(FunctionObs, NewSensor)', alpha = 0.3, show=false, legend=false, title="Surrogate Solutions"); # plot neural surrogate approximations
 #plot(p1, p2, p3)
 
-σl = 1e-2 + sqrt(FinalLoss) # standard deviation of data likelihood (measurement noise + 2 sqrt(model final_loss))
+σl = 1e-1 + sqrt(FinalLoss) # standard deviation of data likelihood (measurement noise + 2 sqrt(model final_loss))
 # setup turing model to infer the parameters of the fourier basis forcing function which generated the noisy solution trace given as data
 @model function BayesFunctionalInverse(u₀Data, SolutionObs)
     θ ~ MultivariateNormal(zeros(θDim), σp * I(θDim))
@@ -103,7 +111,7 @@ NewSensor = reshape(collect(SensorGridRefined), (1, length(SensorGridRefined)))
     end
 end
 
-Select = 100 # choose a particular solution from the collection generated above
+Select = 1 # choose a particular solution from the collection generated above
 Data = reshape(SolutionObs[Select, :], (1, NumSensors)) # the solver data
 DataNoisy = Data + σl * randn(size(Data)) # data with noise added having amplitude equal to the standard deviation of log likelihood
 u₀Data = FunctionObs[1:2, Select]
@@ -117,7 +125,7 @@ plot(funcplot, solplot, datplot)
 InverseProblem = BayesFunctionalInverse(u₀Data, DataNoisy)
 
 # sample from model conditional on noisy data using No-U-Turn sampler set at 65% acceptance ratio, 100 samples
-Iterations = 100
+Iterations = 1000
 PosteriorSamples = sample(InverseProblem, NUTS(0.65), Iterations)
 StatsPlots.plot(PosteriorSamples) # visualize sampler trajectories and marginal densities
 
@@ -134,7 +142,8 @@ for p in eachrow(Array(PosteriorSamples))
     prob = remake(prob, u0 = u₀Data, p = p)
     sol = solve(prob, Tsit5())
     pred = sol(SensorGrid, idxs=1).u
-    plot!(SensorGrid, pred, alpha = 0.05, color=:blue, legend=false)
-    plot!(SensorGrid, Model(func, Sensor)', alpha = 0.05, color=:green, legend=false)
+    plot!(SensorGrid, pred, alpha = 0.01, color=:blue, legend=false)
+    plot!(SensorGrid, Model(func, Sensor)', alpha = 0.01, color=:green, legend=false)
 end
-plot!(SensorGrid, SolutionObs[Select, :], lw=1.0, color=:red, title="GT(Red); SolverDist(Blue); SurrogateDist(Green)")
+scatter!(SensorGrid, DataNoisy[1, :], color=:black);
+plot!(SensorGrid, SolutionObs[Select, :], color=:red, title="GT(Red); Solver(Blue); Surrogate(Green); Data(Black)")
