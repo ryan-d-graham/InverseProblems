@@ -37,7 +37,7 @@ This script uses SGRLD to estimate the full joint distribution over parameters o
 
 SGRLD_dist.jl:
 
-This script showcases the SGRLD's Monge Riemannian metric tensor's ability to infer the full (multi-modal) posterior of an arbitrary energy function. 
+This script showcases the SGRLD's Monge Riemannian metric tensor's ability to infer the full joint (potentially multi-modal) posterior of an arbitrary energy function. 
 Possible applications include learning the partition function of thermodynamic systems whose energy function is specified as the log likelihood. 
 
 MarkovGrid.py:
