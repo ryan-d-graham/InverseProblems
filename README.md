@@ -7,8 +7,7 @@ This script demonstrates a use case of DeepONet, the most general neural operato
 using Julia's SciML ecosystem. 
 In this example a nonlinear pendulum system is formulated and solved using DifferentialEquations.jl. 10,000 random solution trajectories with random initial conditions 
 and associated random external forcing functions are recorded as data to train a surrogate model. The model learns the operator mapping the ICs and input
-function to the solution trajectory of the ODE system. The more trajectories used, the lower the generalization error, but higher the training error will be.
-In my experience, inference only begins to work well once the model's training loss is below 2e-3 and at least 100 iterations of NUTS(0.64) are used.
+function to the solution trajectory of the ODE system.
 
 The equations governing the toy example are:
 x'(t) = v(t); x''(t) = v'(t) = -gsin(x(t)) - cv(t) + f(t, p)
