@@ -33,7 +33,7 @@ In this example, the parameter's full densities of an ODE model are learned from
 
 SGRLD_polymodel.jl:
 
-This script uses SGRLD to learn the parameters of a truncated Fourier Series for simple polynomial regression. 
+This script uses SGRLD to estimate the full joint distribution over parameters of a truncated Fourier Series for simple polynomial regression. 
 
 SGRLD_dist.jl:
 
