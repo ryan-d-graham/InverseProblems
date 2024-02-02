@@ -128,7 +128,7 @@ NewSensor = reshape(collect(SensorGridRefined), (1, length(SensorGridRefined)))
 end
 
 # Evaluate model performance visually
-Select = 10 # choose a particular solution from the collection generated above
+Select = 3 # choose a particular solution from the collection generated above
 θData = reshape(SolutionObs₁[Select, :], (1, NumSensors)) # the solver data
 ωData = reshape(SolutionObs₂[Select, :], (1, NumSensors))
 θDataNoisy = θData + σθl * randn(size(θData)) # data with noise added having amplitude equal to the standard deviation of log likelihood
@@ -142,7 +142,7 @@ modelplot = plot!(SensorGrid, ωData[1, :], label = "ωGT", color=:Red);
 modelplot = plot!(SensorGrid, Model₁(FunctionObs[:, Select], Sensor)', label = "θPred", color=:Blue);
 modelplot = plot!(SensorGrid, Model₂(FunctionObs[:, Select], Sensor)', label = "ωPred", color=:Orange);
 modelplot = scatter!(SensorGrid, θDataNoisy[1, :], label = "θData", color=:Purple);
-modelplot = scatter!(SensorGrid, ωDataNoisy[1, :], label = "ωData", title = "Model Prediction", color=:Yellow);
+modelplot = scatter!(SensorGrid, ωDataNoisy[1, :], label = "ωData", color=:Yellow);
 plot(torqueplot, modelplot, layout = (2, 1))
 
 # instantiate Turing model with noisy data
