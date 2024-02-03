@@ -3,18 +3,18 @@ using LinearAlgebra: I
 using Plots, Distributions
 using DiffEqFlux
 
-# Experiment with gradients
+
 function model(x, θ)
     n = length(θ)
-    θ * FourierBasis(n)(x)'
+    θ' * FourierBasis(n)(x)
 end
 
-# Generate some toy data produced by a cubic model y = θ₁x³ + θ₂x² + θ₃x + θ₄
-mdim = 3
-x0, xf = (-π, π)
-ndata = 256
+# Generate some toy data produced by a truncated Fourier series
+mdim = 16
+x0, xf = (0.0, 1.0*π)
+ndata = 32
 npoints = 512
-σl = 1e1 # standard deviation of model likelihood
+σl = 1e0 # standard deviation of model likelihood
 σp = 1e0 # prior standard deviation of parameters
 mnoise = 1e0
 θ_gt = σp * randn(mdim) # ground truth parameters
@@ -24,7 +24,7 @@ xs_data = collect(range(x0, xf, ndata))
 xs_plot = collect(range(x0, xf, npoints))
 fs_data = [model(x, θ_gt) for x ∈ xs_data]
 fs_plot = [model(x, θ_gt) for x ∈ xs_plot]
-data = fs_data .+ mnoise .* randn(ndata)
+data = fs_data + mnoise * randn(ndata)
 scatter(xs_data, data, color=:blue, alpha = 0.4, label = "Data", title = "Poly Model");
 plot!(xs_plot, fs_plot, color=:red, lw = 2.0, alpha = 0.4, label = "GT Model")
 
@@ -48,14 +48,14 @@ R = MultivariateNormal(zeros(mdim), I(mdim))
 
 # SGRLD functions, hyperparameters and initial conditions
 # Time-stepping term
-a, b, c = (1e4, 1e8, 0.55)
+a, b, c = (1e2, 1e3, 0.55)
 h(t) = 1.0 / (b + a * t)^c
 
 
 # Initial parameter θ₀
 θₜ = randn(mdim)
-λ = 1e-6 # EMA gradient updater
-α = 1e-4 # tuning parameter for Monge metric
+λ = 1e-1 # EMA gradient updater
+α = 1e-2 # tuning parameter for Monge metric
 t = 0.0 #time stepper initial condition
 ∇lₜ = zeros(mdim) #initialize EMA gradient to zero vector
 
@@ -85,28 +85,23 @@ end
 
 # Visualize sampler statistics
 plot(losses, title = "Loss trace", label = "Loss")
-plot(Θ, labels = ["θₜ₁" "θₜ₂" "θₜ₃" "θₜ₄"], alpha = 0.7);
-plot!(1:epochs, θ_gt[1] * ones(length(1:epochs)), label = "θ_gt[1]");
-plot!(1:epochs, θ_gt[2] * ones(length(1:epochs)), label = "θ_gt[2]");
-plot!(1:epochs, θ_gt[3] * ones(length(1:epochs)), label = "θ_gt[3]");
-plot!(1:epochs, θ_gt[4] * ones(length(1:epochs)), label = "θ_gt[4]");
-plot!(1:epochs, θ_gt[5] * ones(length(1:epochs)), label = "θ_gt[5]");
-plot!(1:epochs, θ_gt[6] * ones(length(1:epochs)), label = "θ_gt[6]");
-plot!(1:epochs, θ_gt[7] * ones(length(1:epochs)), label = "θ_gt[7]");
-plot!(1:epochs, θ_gt[8] * ones(length(1:epochs)), label = "θ_gt[8]");
-plot!(1:epochs, θ_gt[9] * ones(length(1:epochs)), label = "θ_gt[9]");
-plot!(1:epochs, θ_gt[10] * ones(length(1:epochs)), label = "θ_gt[10]", legend=false)
+#plot(Θ, labels = ["θₜ₁" "θₜ₂" "θₜ₃" "θₜ₄"], alpha = 0.1);
+#plot!(1:epochs, θ_gt[1] * ones(length(1:epochs)), label = "θ_gt[1]");
+#plot!(1:epochs, θ_gt[2] * ones(length(1:epochs)), label = "θ_gt[2]");
+#plot!(1:epochs, θ_gt[3] * ones(length(1:epochs)), label = "θ_gt[3]");
+#plot!(1:epochs, θ_gt[4] * ones(length(1:epochs)), label = "θ_gt[4]");
+#plot!(1:epochs, θ_gt[5] * ones(length(1:epochs)), label = "θ_gt[5]");
+#plot!(1:epochs, θ_gt[6] * ones(length(1:epochs)), label = "θ_gt[6]");
+#plot!(1:epochs, θ_gt[7] * ones(length(1:epochs)), label = "θ_gt[7]");
+#plot!(1:epochs, θ_gt[8] * ones(length(1:epochs)), label = "θ_gt[8]");
+#plot!(1:epochs, θ_gt[9] * ones(length(1:epochs)), label = "θ_gt[9]");
+#plot!(1:epochs, θ_gt[10] * ones(length(1:epochs)), label = "θ_gt[10]", legend=false)
 
 # Get density corner plots
 burn_in = Int64(1e1)
-bins = 128
-for i ∈ 1:mdim
-    for j ∈ i+1:mdim-1
-        plot(histogram2d(Θ[burn_in:epochs, i], Θ[burn_in:epochs, j], bins=bins));
-    end
-end
-plot(histogram2d(Θ[burn_in:end, end], Θ[burn_in:end, end], bins=bins))
-
+bins = 32
+dist1, dist2 = 3, 4
+plot(histogram2d(Θ[burn_in:epochs, dist1], Θ[burn_in:epochs, dist2], bins=bins))
 
 skip = Int64(4)
 scatter(xs_data, data, alpha = 0.7, color=:blue, title = "Data(blue); Posterior samples(red); GT(black)");

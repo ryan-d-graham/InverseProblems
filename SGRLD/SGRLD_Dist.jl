@@ -5,7 +5,7 @@ using Plots, Distributions
 nθ = 2
 # Use in ForwardDiff
 function Loss(θ)
-    sum(abs, θ[2] - π * sin(θ[1]))
+    sum(abs2, θ[1] + θ[2])
 end
 
 # Automatic Gradient of negative log likelihood function
@@ -62,7 +62,7 @@ plot(losses, title = "Loss trace", label = "Loss") # loss trace1plot(Θ, alpha =
 
 # Get density corner plots
 burn_in = Int64(1e2) # discard n = burn_in samples from sampler statistics
-bins = 256 # number of bins to use in parameter histograms
+bins = 64 # number of bins to use in parameter histograms
 plot(histogram2d(Θ[burn_in:end, 1], Θ[burn_in:end, 2], bins=bins), title="ρ(θ₁,θ₂|D)") # 2D joint density over parameters
 plot(histogram(Θ[burn_in:end, 1], bins=bins), title="ρ(θ₁|D)") # 1D marginal density over first parameter
 plot(histogram(Θ[burn_in:end, 2], bins=bins), title="ρ(θ₂|D)") # 1D marginal density over second parameter
