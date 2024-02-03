@@ -5,7 +5,7 @@ using Plots, Distributions
 nθ = 2
 # Use in ForwardDiff
 function Loss(θ)
-    sum(abs2, θ[1] + θ[2])
+    sum(abs2, θ)
 end
 
 # Automatic Gradient of negative log likelihood function
