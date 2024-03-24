@@ -8,7 +8,7 @@ using Turing, StatsPlots
 #I recently discovered this script satisfies all of the 
 # features of a Projection Filter, except instead of using 
 # internal solvers, I use a neural network whose 
-# forward pass gives the solution operator evaluated
+# forward pass gives the solver-trained solution operator evaluated
 # on the lattice spanning the output's domain
 
 # use a nn to approximate an operator, eg. an ODE/PDE solver, Nonlinear Solver, Optimization problem etc
