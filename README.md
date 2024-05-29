@@ -82,5 +82,3 @@ We welcome contributions! Please see our contributing guidelines for more detail
 License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
-
-This README now includes information about KernelIntegrals and provides a comprehensive overview of your repository's projects and their purposes.
