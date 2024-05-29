@@ -11,6 +11,7 @@ This repository leverages DeepONet to learn Banach-space mappings for inverse pr
    - [DeepONetInverseProb.jl](#deeponetinverseprobjl)
    - [SGRLD_odemodel.jl](#sgrld_odemodeljl)
    - [MarkovGrid.py](#markovgridpy)
+   - [KernelIntegrals.jl](#kernelintegralsjl)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
