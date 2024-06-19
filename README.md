@@ -14,7 +14,7 @@ This repository leverages DeepONet to learn Banach-space mappings for inverse pr
    - [KernelIntegrals.jl](#kernelintegralsjl)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
-6. [License](#license)
+6. [LICENSE](#license)
 
 ## Introduction
 Inverse problems involve estimating unknown parameters or inputs from observed data. This repository contains several scripts that showcase different approaches to solving these problems using Julia and Python. The acceleration in forward evaluation is used to accelerate Bayesian inference within a PPL like Turing.
